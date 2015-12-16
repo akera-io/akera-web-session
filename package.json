@@ -1,0 +1,33 @@
+{
+  "name": "akera-web-session",
+  "version": "1.0.1",
+  "description": "Session management middleware for Akera web service",
+  "homepage": "http://akera.io",
+  "author": {
+    "name": "Marian Edu",
+    "email": "marian.edu@acorn.ro"
+  },
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/akera-io/akera-web-session/raw/master/LICENSE"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akera-io/akera-web-session.git"
+  },
+  "bugs": {
+    "url": "https://github.com/akera-io/akera-web-session/issues"
+  },
+  "scripts": {
+    "lint": "./node_modules/.bin/jshint ./lib",
+    "checkStyle": "./node_modules/.bin/jscs ./lib",
+    "test": "npm run-script lint && npm run-script checkStyle"
+  },
+  "dependencies": {
+  	"express-session": ">= 1.10.x"
+  },
+  "devDependencies": {
+    "jshint": ">= 2.6.0",
+    "jscs": ">= 1.11"
+  }
+}
