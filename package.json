@@ -1,6 +1,6 @@
 {
   "name": "akera-web-session",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Session management middleware for Akera web service",
   "homepage": "http://akera.io",
   "author": {
