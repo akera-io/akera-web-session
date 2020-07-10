@@ -5,13 +5,13 @@ export interface AkeraSessionOptions extends session.SessionOptions {
   saveUnitialized?: boolean;
   unset?: any;
   secret: string;
-  store?: any;
+  store?:any;
 }
 
 export function AkeraWebSession(
   akeraWebApp?,
   sessionConfig?: AkeraSessionOptions
-) {
+) : void{
   this.init = function (config: AkeraSessionOptions, router) {
     if (
       !router ||
@@ -118,7 +118,10 @@ export function AkeraWebSession(
 
     try {
       AkeraWeb = akeraWebApp.require("akera-web");
-    } catch (err) {}
+    } catch (err) {
+      akeraWebApp.log('warn',err.message);
+      
+    }
 
     if (!AkeraWeb || !(akeraWebApp instanceof AkeraWeb)) {
       throw new Error("Invalid Akera web service instance");

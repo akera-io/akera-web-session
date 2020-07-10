@@ -10,7 +10,6 @@ var removeLogging = require("gulp-strip-debug");
 var istanbul = require("gulp-istanbul");
 var remapIstanbul = require("remap-istanbul/lib/gulpRemapIstanbul");
 var tsProject = typescript.createProject("tsconfig.json");
-var testProject = typescript.createProject("test/tsconfig.json");
 
 gulp.task("compile", function () {
   return tsProject
