@@ -32,7 +32,7 @@ export function AkeraWebSession(
     if (typeof config.store === "object" && config.store.connector) {
       try {
         // some connectors works better if they get session on initialization
-        var SessionStore = akeraApp.require(config.store.connector)(session);
+        const SessionStore = akeraApp.require(config.store.connector)(session);
         config.store = new SessionStore(config.store);
 
         config.store.on("disconnect", function (err) {
@@ -72,7 +72,7 @@ export function AkeraWebSession(
           }
 
           if (this.req.broker && this._data) {
-            var broker = this._data[this.req.broker.alias];
+            const broker = this._data[this.req.broker.alias];
 
             if (broker && typeof broker === "object") {
               return broker[name];
@@ -114,7 +114,7 @@ export function AkeraWebSession(
   };
   if (akeraWebApp != undefined) {
     // mounted as application level service
-    var AkeraWeb = null;
+    let AkeraWeb = null;
 
     try {
       AkeraWeb = akeraWebApp.require("akera-web");
