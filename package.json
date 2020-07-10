@@ -1,0 +1,45 @@
+{
+  "name": "@akeraio/web-session",
+  "version": "1.0.5",
+  "description": "Session management middleware for Akera web service",
+  "homepage": "http://akera.io",
+  "author": {
+    "name": "Marian Edu",
+    "email": "marian.edu@acorn.ro"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akera-io/akera-web-session.git"
+  },
+  "bugs": {
+    "url": "https://github.com/akera-io/akera-web-session/issues"
+  },
+  "scripts": {
+    "lint": "./node_modules/.bin/jshint ./lib",
+    "checkStyle": "./node_modules/.bin/jscs ./lib",
+    "test": "npm run-script lint && npm run-script checkStyle"
+  },
+  "dependencies": {
+    "@types/express-session": "^1.17.0",
+    "express-session": ">= 1.10.x"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-istanbul": "^1.1.3",
+    "gulp-mocha": "^3.0.1",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-strip-debug": "^3.0.0",
+    "gulp-typedoc": "^2.2.0",
+    "gulp-typescript": "^4.0.2",
+    "gulp-uglify-es": "^1.0.4",
+    "istanbul": ">= 0.3.6",
+    "jscs": ">= 1.11",
+    "jshint": ">= 2.6.0",
+    "mocha": "~1.21.4",
+    "remap-istanbul": "^0.11.1",
+    "should": ">= 5.0",
+    "ts-node": "^6.0.3",
+    "typedoc": "^0.15.0",
+    "typescript": "^2.8.3"
+  }
+}
