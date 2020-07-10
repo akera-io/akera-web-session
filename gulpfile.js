@@ -44,7 +44,7 @@ gulp.task("doc:task", function () {
   return tsProject.src().pipe(typedoc(typedocOptions));
 });
 
-gulp.task("clean:test", function () {
+gulp.task("clean:tests", function () {
   return del(["test/**//*.js"]);
 });
 
@@ -56,7 +56,7 @@ gulp.task("clean:cover", function () {
   return del(["coverage"]);
 });
 
-ulp.task("cover:prepare", function () {
+gulp.task("cover:prepare", function () {
   return (
     gulp
       .src(["dist/lib/**/*.js"])
