@@ -1,111 +1,93 @@
 import * as session from "express-session";
-import {IBroker,ConnectionPoolOptions,ConnectionPool,AkeraLogger,LogLevel} from "@akeraio/api";
-import {WebMiddleware,IWebMiddleware} from "@akeraio/web-middleware";
+import {ConnectionPool, ConnectionPoolOptions, LogLevel} from "@akeraio/api";
+import {WebMiddleware} from "@akeraio/web-middleware";
 import {Router} from "express";
+
 export interface AkeraSessionOptions extends session.SessionOptions {
   isolated?: boolean;
   resave?: boolean;
   saveUnitialized?: boolean;
   unset?: any;
   secret: string;
-  store?:any;
- 
-  
+  store?: any;
 }
-
 
 type LoggerFunction = (level: LogLevel, message: string) => void;
 
 export default class AkeraWebSession extends WebMiddleware {
-  
-  sessionConfig?: AkeraSessionOptions;
   private _router: Router;
- private _logger:LoggerFunction;
- private _config:AkeraSessionOptions;
- private _connectionPool: ConnectionPool;
- 
+  private _logger: LoggerFunction;
+  private _config: AkeraSessionOptions;
+  private _connectionPool: ConnectionPool;
 
- get log(): LoggerFunction {
-  return this._logger;
-}
-public constructor(config?: AkeraSessionOptions) {
-  super();
-  this._config = config;
-
-}
-
- public mount(config: ConnectionPoolOptions | ConnectionPool): Router {
-  if (this._router) {
-    return this._router;
+  get log(): LoggerFunction {
+    return this._logger;
   }
 
-  this._router = Router({
-    mergeParams: true
-  });
-
-
-  if (config instanceof ConnectionPool) {
-    this._logger = (level: LogLevel, message: string) => config.log(message, level);
-  } else if ("logger" in config) {
-    this._logger = config.logger.log;
-  } else {
-    this._logger = () => ({});
+  public constructor(config?: AkeraSessionOptions) {
+    super();
+    this._config = config;
+    this.initSession(config);
   }
-  this.initConnectionPool(config);
-  
 
- }
- private initConnectionPool(brokerConfig?: ConnectionPoolOptions | ConnectionPool): void {
-  if (brokerConfig instanceof ConnectionPool) {
-    this._connectionPool = brokerConfig;
-    return;
-  }
-}
- 
-  
- public initSession(config: AkeraSessionOptions, router) {
-   
-    if (
-      !router ||
-      !router.__app ||
-      typeof router.__app.require !== "function"
-    ) {
-      throw new Error("Invalid Akera web service router.");
+  public mount(config: ConnectionPoolOptions | ConnectionPool): Router {
+    if (this._router) {
+      return this._router;
     }
-    
-    if (!config || typeof config !== "object") config = { secret: "_akera_" };
-    // set-up required/default values
-    config.resave = config.resave || false;
-    config.saveUninitialized = config.saveUninitialized || false;
-    config.unset = config.unset || "destroy";
-    config.secret = config.secret || "__akera__";
-    // if mounted as broker level service then is 'isolated' by default
-    config.isolated = router._broker !== undefined || config.isolated === true;
-    if (typeof config.store === "object" && config.store.connector) {
+
+    this._router = Router({
+      mergeParams: true
+    });
+
+    if (config instanceof ConnectionPool) {
+      this._logger = (level: LogLevel, message: string) => config.log(message, level);
+    } else if ("logger" in config) {
+      this._logger = config.logger.log;
+    } else {
+      this._logger = () => ({});
+    }
+    this.initConnectionPool(config);
+  }
+
+  private initConnectionPool(brokerConfig: ConnectionPoolOptions | ConnectionPool): void {
+    if (brokerConfig instanceof ConnectionPool) {
+      this._connectionPool = brokerConfig;
+      return;
+    }
+
+    this._connectionPool = new ConnectionPool(brokerConfig);
+  }
+
+  public async initSession(config: AkeraSessionOptions): Promise<void> {
+    if (!config || typeof config !== "object") {
+      config = {secret: "_akera_"};
+    }
+
+    this._config = config;
+
+    this._config.resave = this._config.resave || false;
+    this._config.saveUninitialized = this._config.saveUninitialized || false;
+    this._config.unset = this._config.unset || "destroy";
+    this._config.secret = this._config.secret || "__akera__";
+    this._config.isolated = this._config.isolated === true;
+
+    if (typeof this._config.store === "object" && this._config.store.connector) {
       try {
         // some connectors works better if they get session on initialization
-        const SessionStore = require(config.store.connector)(session);
-        config.store = new SessionStore(config.store);
+        const SessionStore = await import(this._config.store.connector);
+        this._config.store = new (SessionStore(session))(this._config.store);
 
-        config.store.on("disconnect", function (err) {
+        this._config.store.on("disconnect", (err) => {
           if (err) {
-            akeraApp.log(
-              "warn",
-              ` Session store disconnected - ${err.message}`
-            );
+            this.log(LogLevel.warn, ` Session store disconnected - ${err.message}`);
           }
         });
       } catch (err) {
-        akeraApp.log(
-          "warn",
-          `Unable to initialize session store ${config.store.connector}  -  ${err.message}`
-        );
+        this.log(LogLevel.error, `Unable to initialize session store ${this._config.store.connector} - ${err.message}`);
       }
     }
 
-    // session is decorated with variable getter/setter
-
-    router.use(session(config), function (req, next) {
+    this._router.use(session(config), (req, res, next) => {
       if (req.session && req.session.get !== "function") {
         req.session.all = function () {
           if (config.isolated !== true) {
@@ -163,20 +145,5 @@ public constructor(config?: AkeraSessionOptions) {
       }
       next();
     });
-  
-  
-  
-
-    this.initSession(this.sessionConfig, this._router);
   }
 }
-
-
-
-let config:AkeraSessionOptions;
-let router:Router;
-const akeraWebSess= new AkeraWebSession();
-akeraWebSess.initSession(config,router);
-
-
-

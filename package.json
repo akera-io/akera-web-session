@@ -23,14 +23,15 @@
     "lint:fix": "eslint src/**/* --ext .ts --fix"
   },
   "dependencies": {
-    "express-session": ">=1.17.x"
+    "express-session": "^1.17.1"
   },
   "peerDependencies": {
-    "@akeraio/api": "1.1.13",
-    "@akeraio/web-middleware": "1.0.1"
-
+    "@akeraio/api": "^1.1.14",
+    "@akeraio/web-middleware": "^1.0.2"
   },
   "devDependencies": {
+    "@akeraio/api": "^1.1.14",
+    "@akeraio/web-middleware": "^1.0.2",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
     "@types/node": "^14.0.20",
