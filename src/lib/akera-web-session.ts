@@ -12,35 +12,29 @@ export interface AkeraSessionOptions extends session.SessionOptions {
  
   
 }
-export interface AkeraWebApp{
-  app?:string;
-  log?:any;
-  require:any;
-}
+
+
 type LoggerFunction = (level: LogLevel, message: string) => void;
 
-export default class AkeraWebSession extends WebMiddleware implements IWebMiddleware {
-  public akeraWebApp?:AkeraWebApp;
+export default class AkeraWebSession extends WebMiddleware {
+  
   sessionConfig?: AkeraSessionOptions;
   private _router: Router;
  private _logger:LoggerFunction;
  private _config:AkeraSessionOptions;
- public __app:AkeraWebApp;
  private _connectionPool: ConnectionPool;
  
 
  get log(): LoggerFunction {
   return this._logger;
 }
-public constructor(config?: AkeraSessionOptions,router?) {
+public constructor(config?: AkeraSessionOptions) {
   super();
   this._config = config;
-  this._router=router;
 
-  
 }
 
- public mount(config: ConnectionPoolOptions | ConnectionPool, logger?: AkeraLogger): Router {
+ public mount(config: ConnectionPoolOptions | ConnectionPool): Router {
   if (this._router) {
     return this._router;
   }
@@ -78,7 +72,7 @@ public constructor(config?: AkeraSessionOptions,router?) {
     ) {
       throw new Error("Invalid Akera web service router.");
     }
-    const akeraApp = router.__app;
+    
     if (!config || typeof config !== "object") config = { secret: "_akera_" };
     // set-up required/default values
     config.resave = config.resave || false;
@@ -90,7 +84,7 @@ public constructor(config?: AkeraSessionOptions,router?) {
     if (typeof config.store === "object" && config.store.connector) {
       try {
         // some connectors works better if they get session on initialization
-        const SessionStore = akeraApp.require(config.store.connector)(session);
+        const SessionStore = require(config.store.connector)(session);
         config.store = new SessionStore(config.store);
 
         config.store.on("disconnect", function (err) {
@@ -171,26 +165,13 @@ public constructor(config?: AkeraSessionOptions,router?) {
     });
   
   
-  if (this.akeraWebApp != undefined) {
-    // mounted as application level service
-    let AkeraWeb = null;
-
-    try {
-      AkeraWeb = this.akeraWebApp.require("akera-web");
-    } catch (err) {
-      this.akeraWebApp.log('warn',err.message);
-      
-    }
-
-    if (!AkeraWeb || !(this.akeraWebApp instanceof AkeraWeb)) {
-      throw new Error("Invalid Akera web service instance");
-    }
+  
 
     this.initSession(this.sessionConfig, this._router);
   }
 }
 
-}
+
 
 let config:AkeraSessionOptions;
 let router:Router;
