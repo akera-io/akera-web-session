@@ -2,6 +2,7 @@ import * as session from "express-session";
 import {IBroker,ConnectionPoolOptions,ConnectionPool,AkeraLogger,LogLevel} from "@akeraio/api";
 import {WebMiddleware,IWebMiddleware} from "@akeraio/web-middleware";
 import {Router} from "express";
+import { log } from "console";
 export interface AkeraSessionOptions extends session.SessionOptions {
   isolated?: boolean;
   resave?: boolean;
@@ -14,21 +15,21 @@ export interface AkeraSessionOptions extends session.SessionOptions {
 }
 
 
-type LoggerFunction = (level: LogLevel, message: string) => void;
+
 
 export default class AkeraWebSession extends WebMiddleware {
   
   sessionConfig?: AkeraSessionOptions;
   private _router: Router;
- private _logger:LoggerFunction;
  private _config:AkeraSessionOptions;
  private _connectionPool: ConnectionPool;
  
 
- get log(): LoggerFunction {
-  return this._logger;
+ log(level: LogLevel, message: string): void {
+  this._connectionPool.log(message, level);
 }
-public constructor(config?: AkeraSessionOptions) {
+
+public constructor(config: AkeraSessionOptions) {
   super();
   this._config = config;
 
@@ -45,11 +46,11 @@ public constructor(config?: AkeraSessionOptions) {
 
 
   if (config instanceof ConnectionPool) {
-    this._logger = (level: LogLevel, message: string) => config.log(message, level);
+    this.log = (level: LogLevel, message: string) => config.log(message, level);
   } else if ("logger" in config) {
-    this._logger = config.logger.log;
+    this.log = config.logger.log;
   } else {
-    this._logger = () => ({});
+    this.log = () => ({});
   }
   this.initConnectionPool(config);
 }
@@ -64,7 +65,7 @@ public constructor(config?: AkeraSessionOptions) {
 }
  
   
- public initSession(config: AkeraSessionOptions, router) {
+ public initSession (config: AkeraSessionOptions, router) {
    
     if (
       !router ||
@@ -90,14 +91,14 @@ public constructor(config?: AkeraSessionOptions) {
 
         config.store.on("disconnect", function (err) {
           if (err) {
-          this.logger(
+          log(
               "warn",
               ` Session store disconnected - ${err.message}`
             );
           }
         });
       } catch (err) {
-        this._logger(
+        log(
           'warn',
           `Unable to initialize session store ${config.store.connector}  -  ${err.message}`
         );
@@ -178,7 +179,7 @@ public constructor(config?: AkeraSessionOptions) {
 
 let config:AkeraSessionOptions;
 let router:Router;
-const akeraWebSess= new AkeraWebSession();
+const akeraWebSess= new AkeraWebSession(config);
 akeraWebSess.initSession(config,router);
 
 
