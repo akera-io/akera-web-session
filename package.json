@@ -23,7 +23,13 @@
     "lint:fix": "eslint src/**/* --ext .ts --fix"
   },
   "dependencies": {
+    "@akeraio/api": "^1.1.14",
+    "@akeraio/web-middleware": "^1.0.1",
+    "express": "^4.17.1",
     "express-session": ">=1.17.x"
+  },
+  "peerDependencies": {
+    "@akeraio/api": "1.1.13"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
