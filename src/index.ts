@@ -1,1 +1,7 @@
-// module.exports = require('./src/lib/akera-web-session.ts'); 
+import {AkeraWebSession, AkeraSessionOptions, IsolatedSession} from "./lib/akera-web-session"
+
+export {
+    AkeraWebSession, AkeraSessionOptions, IsolatedSession
+}
+
+export default AkeraWebSession;
